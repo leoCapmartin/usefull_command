@@ -37,21 +37,36 @@ behave () {
     version=$2
     msg=$3
 
-    if [ -z "$commit_msg" ];then
+    if [ -z "$commit_msg" ]; then
         commit_msg=$msg
     fi
 
     if $commit; then
         echo -e "${RED}git add $exo_name${NC}"
         git add "$exo_name"
+        if [ "$?" -ne 0 ]; then 
+            exit 1 
+        fi
+
         echo -e "${RED}git commit -m \"$commit_msg\"${NC}"
+        if [ "$?" -ne 0 ]; then 
+            exit 1 
+        fi
+
         git commit -m "$commit_msg"
     fi
 
     echo -e "${RED}git tag -a \"exercises-${exo_name}-v$version\" -m \"$msg\"${NC}"
     git tag -a "exercises-${exo_name}v$version" -m "$msg"
+    if [ "$?" -ne 0 ]; then 
+        exit 1 
+    fi
+
     echo -e "${RED}git push --follow-tags origin master${NC}"
     git push --follow-tags origin master
+    if [ "$?" -ne 0 ]; then 
+        exit 1 
+    fi
 }
 
 if [ "$#" -eq 0 ]; then

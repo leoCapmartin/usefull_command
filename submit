@@ -5,8 +5,7 @@ NC='\033[0m' # No Color
 
 display_help () {
     echo USAGE:
-    echo "     submit [--set-tag | -st] <tag>"
-    echo "     submit [OPTION] <version> <message>"
+    echo "     submit [OPTION] <exercice name> <version> <message>"
     echo
     echo OPTIONS:
     echo "     -nc | --no-commit: submit will not commit your work"
@@ -16,9 +15,8 @@ display_help () {
 
 behave () {
     commit=true
-    msg=
     commit_msg=
-    while [ $# -gt 2 ]; do
+    while [ $# -gt 3 ]; do
         case $1 in
             -nc | --no-commit)
                 commit=false
@@ -35,23 +33,23 @@ behave () {
         shift
     done
 
-    version=$1
-    msg=$2
-    tag=$(cat .tag)
+    exo_name=$1
+    version=$2
+    msg=$3
 
     if [ -z "$commit_msg" ];then
         commit_msg=$msg
     fi
 
     if $commit; then
-        echo -e "${RED}git add .${NC}"
-        git add .
+        echo -e "${RED}git add $exo_name${NC}"
+        git add "$exo_name"
         echo -e "${RED}git commit -m \"$commit_msg\"${NC}"
         git commit -m "$commit_msg"
     fi
 
-    echo -e "${RED}git tag -a \"${tag}v$version\" -m \"$msg\"${NC}"
-    git tag -a "${tag}v$version" -m "$msg"
+    echo -e "${RED}git tag -a \"exercises-${exo_name}-v$version\" -m \"$msg\"${NC}"
+    git tag -a "exercises-${exo_name}v$version" -m "$msg"
     echo -e "${RED}git push --follow-tags origin master${NC}"
     git push --follow-tags origin master
 }
@@ -62,20 +60,10 @@ if [ "$#" -eq 0 ]; then
 fi
 
 case $1 in
-    --set-tag | -st)
-
-        shift
-        if [ -z "$1" ]; then
-            display_help
-            exit 1
-        fi
-        printf $1 > .tag
-        ;;
-
     -h | --help)
         display_help
+        exit
         ;;
-
     *)
         behave "$@"
 esac

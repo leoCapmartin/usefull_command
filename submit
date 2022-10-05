@@ -57,7 +57,7 @@ behave () {
     fi
 
     echo -e "${RED}git tag -a \"exercises-${exo_name}-v$version\" -m \"$msg\"${NC}"
-    git tag -a "exercises-${exo_name}v$version" -m "$msg"
+    git tag -a "exercises-${exo_name}-v$version" -m "$msg"
     if [ "$?" -ne 0 ]; then 
         exit 1 
     fi

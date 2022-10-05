@@ -1,0 +1,29 @@
+#!/bin/sh
+
+if [ "$#" -ne 2 ]; then
+    exit 1
+fi
+
+if [ "$1" = "c" ]; then
+    touch ./"$2".c
+
+    echo "#include <stdio.h>" >> ./"$2".c
+    echo "#include <stlib.h>" >> ./"$2".c
+    echo "" >> ./"$2".c
+    echo "int main()" >> ./"$2".c
+    echo "{" >> ./"$2".c
+    echo "" >> ./"$2".c
+    echo "    return 0;" >> ./"$2".c
+    echo "}" >> ./"$2".c
+elif [ "$1" = "h" ]; then
+    h=./"$2".h
+    touch ./"$2".c
+    touch "$h"
+
+    echo "#ifndef ${2^^}_H" >> "$h"
+    echo "#define ${2^^}_H" >> "$h"
+    echo "" >> "$h"
+    echo "#endif" >> "$h"
+
+    echo "#include \"${2}.h\"" >> ./"$2".c
+fi

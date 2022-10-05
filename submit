@@ -1,0 +1,81 @@
+#!/bin/sh
+
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+display_help () {
+    echo USAGE:
+    echo "     submit [--set-tag | -st] <tag>"
+    echo "     submit [OPTION] <version> <message>"
+    echo
+    echo OPTIONS:
+    echo "     -nc | --no-commit: submit will not commit your work"
+    echo "     -m: different message for commit"
+    echo "     -h | --help: display help"
+}
+
+behave () {
+    commit=true
+    msg=
+    commit_msg=
+    while [ $# -gt 2 ]; do
+        case $1 in
+            -nc | --no-commit)
+                commit=false
+                ;;
+            -m)
+                shift
+                commit_msg=$1
+                ;;
+            -* | --*)
+                echo "Unknown option $1"
+                display_help
+                exit 1
+        esac
+        shift
+    done
+
+    version=$1
+    msg=$2
+    tag=$(cat .tag)
+
+    if [ -z "$commit_msg" ];then
+        commit_msg=$msg
+    fi
+
+    if $commit; then
+        echo -e "${RED}git add .${NC}"
+        git add .
+        echo -e "${RED}git commit -m \"$commit_msg\"${NC}"
+        git commit -m "$commit_msg"
+    fi
+
+    echo -e "${RED}git tag -a \"${tag}v$version\" -m \"$msg\"${NC}"
+    git tag -a "${tag}v$version" -m "$msg"
+    echo -e "${RED}git push --follow-tags origin master${NC}"
+    git push --follow-tags origin master
+}
+
+if [ "$#" -eq 0 ]; then
+    display_help
+    exit 1
+fi
+
+case $1 in
+    --set-tag | -st)
+
+        shift
+        if [ -z "$1" ]; then
+            display_help
+            exit 1
+        fi
+        printf $1 > .tag
+        ;;
+
+    -h | --help)
+        display_help
+        ;;
+
+    *)
+        behave "$@"
+esac

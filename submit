@@ -1,6 +1,6 @@
 #!/bin/sh
 
-RED='\033[0;31m'
+RED='\033[0;32m'
 NC='\033[0m' # No Color
 
 display_help () {
@@ -48,6 +48,10 @@ behave () {
     fi
 
     if $commit; then
+        cfiles=$(ls "$exo_name"/*.c)
+        for file in $cfiles; do
+            clang-format -i ./${file}
+        done
         echo -e "${RED}git add $exo_name${NC}"
         git add "$exo_name"
         if [ "$?" -ne 0 ]; then 

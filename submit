@@ -8,6 +8,7 @@ display_help () {
     echo "     submit [OPTION] <exercice name> <version> <message>"
     echo
     echo OPTIONS:
+    echo "     -pt | --push-tags: tags and pushes only the tags"
     echo "     -nc | --no-commit: submit will not commit your work"
     echo "     -m: different message for commit"
     echo "     -h | --help: display help"
@@ -16,8 +17,13 @@ display_help () {
 behave () {
     commit=true
     commit_msg=
+    push_tags=--follow-tags
     while [ $# -gt 3 ]; do
         case $1 in
+            -pt | --push-tags)
+                commit=false
+                push_tags=--tags
+                ;;
             -nc | --no-commit)
                 commit=false
                 ;;
@@ -62,8 +68,8 @@ behave () {
         exit 1 
     fi
 
-    echo -e "${RED}git push --follow-tags origin master${NC}"
-    git push --follow-tags origin master
+    echo -e "${RED}git push ${push_tags} origin master${NC}"
+    git push ${push_tags} origin master
     if [ "$?" -ne 0 ]; then 
         exit 1 
     fi

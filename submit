@@ -79,7 +79,7 @@ behave () {
     done
 
     exo_name=$1
-    version=$(date +"%D|%H-%M-%S")
+    version=$(date +"%D-%T")
     msg="$exo_name $version"
 
     if [ -z "$commit_msg" ]; then
@@ -104,8 +104,8 @@ behave () {
         fi
     fi
 
-    echo -e "${RED}git tag -a \"exercise-${exo_name}-$version\" -m \"$msg\"${NC}"
-    git tag -a "exercise-${exo_name}-v$version" -m "$msg"
+    echo -e "${RED}git tag -a \"exercise-${exo_name}-v$(date +"%s")\" -m \"$msg\"${NC}"
+    git tag -a "exercise-${exo_name}-v$(date +"%s")" -m "$msg"
     if [ "$?" -ne 0 ]; then 
         exit 1 
     fi

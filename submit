@@ -5,7 +5,7 @@ NC='\033[0m' # No Color
 
 display_help () {
     echo USAGE:
-    echo "     submit [OPTION] <exercice name> <message>"
+    echo "     submit [OPTION] <exercice name>"
     echo
     echo OPTIONS:
     echo "     -cf | --clang-format: clang format your code"
@@ -44,7 +44,7 @@ format () {
 }
 
 behave () {
-    if [ $# -lt 2 ]; then
+    if [ $# -lt 1 ]; then
         echo "Invalid number of arguments"
         display_help
         exit 1
@@ -54,7 +54,7 @@ behave () {
     commit=true
     commit_msg=
     push_tags=--follow-tags
-    while [ $# -gt 2 ]; do
+    while [ $# -gt 1 ]; do
         case $1 in
             -cf | --clang-format)
                 format_code=true
@@ -79,8 +79,8 @@ behave () {
     done
 
     exo_name=$1
-    msg=$2
-    version=$(date +"%D-%T")
+    version=$(date +"%D|%H-%M-%S")
+    msg="$exo_name $version"
 
     if [ -z "$commit_msg" ]; then
         commit_msg=$msg

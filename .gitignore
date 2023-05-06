@@ -1,0 +1,7 @@
+# ignore all
+*
+
+# except my custom commands
+!.gitignore
+!submit
+!new

@@ -48,10 +48,21 @@ behave () {
     fi
 
     if $commit; then
-        cfiles=$(ls "$exo_name"/*.c)
-        for file in $cfiles; do
+        cppfiles=$(ls "$exo_name"/*.cc)
+        for file in $cppfiles; do
             clang-format -i ./${file}
         done
+
+        hhfiles=$(ls "$exo_name"/*.hh)
+        for file in $hhfiles; do
+            clang-format -i ./${file}
+        done
+
+        hxxfiles=$(ls "$exo_name"/*.hxx)
+        for file in $hxxfiles; do
+            clang-format -i ./${file}
+        done
+
         echo -e "${RED}git add $exo_name${NC}"
         git add "$exo_name"
         if [ "$?" -ne 0 ]; then 
@@ -66,8 +77,8 @@ behave () {
         git commit -m "$commit_msg"
     fi
 
-    echo -e "${RED}git tag -a \"exercises-${exo_name}-v$version\" -m \"$msg\"${NC}"
-    git tag -a "exercises-${exo_name}-v$version" -m "$msg"
+    echo -e "${RED}git tag -a \"exercise-${exo_name}-v$version\" -m \"$msg\"${NC}"
+    git tag -a "exercise-${exo_name}-v$version" -m "$msg"
     if [ "$?" -ne 0 ]; then 
         exit 1 
     fi

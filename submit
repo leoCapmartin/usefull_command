@@ -5,21 +5,60 @@ NC='\033[0m' # No Color
 
 display_help () {
     echo USAGE:
-    echo "     submit [OPTION] <exercice name> <version> <message>"
+    echo "     submit [OPTION] <exercice name> <message>"
     echo
     echo OPTIONS:
+    echo "     -cf | --clang-format: clang format your code"
     echo "     -pt | --push-tags: tags and pushes only the tags"
     echo "     -nc | --no-commit: submit will not commit your work"
     echo "     -m: different message for commit"
     echo "     -h | --help: display help"
 }
 
+format () {
+    echo -e "${RED}clang-format code${NC}"
+    cfiles=$(ls "$exo_name"/*.c)
+    for file in $cfiles; do
+        clang-format -i ./${file}
+    done
+
+    hfiles=$(ls "$exo_name"/*.h)
+    for file in $hfiles; do
+        clang-format -i ./${file}
+    done
+
+    cppfiles=$(ls "$exo_name"/*.cc)
+    for file in $cppfiles; do
+        clang-format -i ./${file}
+    done
+
+    hhfiles=$(ls "$exo_name"/*.hh)
+    for file in $hhfiles; do
+        clang-format -i ./${file}
+    done
+
+    hxxfiles=$(ls "$exo_name"/*.hxx)
+    for file in $hxxfiles; do
+        clang-format -i ./${file}
+    done
+}
+
 behave () {
+    if [ $# -lt 2 ]; then
+        echo "Invalid number of arguments"
+        display_help
+        exit 1
+    fi
+
+    format_code=false
     commit=true
     commit_msg=
     push_tags=--follow-tags
-    while [ $# -gt 3 ]; do
+    while [ $# -gt 2 ]; do
         case $1 in
+            -cf | --clang-format)
+                format_code=true
+                ;;
             -pt | --push-tags)
                 commit=false
                 push_tags=--tags
@@ -40,28 +79,17 @@ behave () {
     done
 
     exo_name=$1
-    version=$2
-    msg=$3
+    msg=$2
+    version=$(date +"%D-%T")
 
     if [ -z "$commit_msg" ]; then
         commit_msg=$msg
     fi
 
     if $commit; then
-        cppfiles=$(ls "$exo_name"/*.cc)
-        for file in $cppfiles; do
-            clang-format -i ./${file}
-        done
-
-        hhfiles=$(ls "$exo_name"/*.hh)
-        for file in $hhfiles; do
-            clang-format -i ./${file}
-        done
-
-        hxxfiles=$(ls "$exo_name"/*.hxx)
-        for file in $hxxfiles; do
-            clang-format -i ./${file}
-        done
+        if $format_code; then
+            format
+        fi
 
         echo -e "${RED}git add $exo_name${NC}"
         git add "$exo_name"
@@ -70,14 +98,13 @@ behave () {
         fi
 
         echo -e "${RED}git commit -m \"$commit_msg\"${NC}"
+        git commit -m "$commit_msg"
         if [ "$?" -ne 0 ]; then 
             exit 1 
         fi
-
-        git commit -m "$commit_msg"
     fi
 
-    echo -e "${RED}git tag -a \"exercise-${exo_name}-v$version\" -m \"$msg\"${NC}"
+    echo -e "${RED}git tag -a \"exercise-${exo_name}-$version\" -m \"$msg\"${NC}"
     git tag -a "exercise-${exo_name}-v$version" -m "$msg"
     if [ "$?" -ne 0 ]; then 
         exit 1 
